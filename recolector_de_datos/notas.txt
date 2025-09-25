@@ -1,0 +1,11 @@
+----------------SOBRE EL CSV-----------------
+📦 ¿Qué contiene cada fila deL CSV?
+Cada fila tiene:
+
+21 puntos x 3 coords x 2 manos = 126 columnas
+
+468 puntos x 3 coords de rostro = 1404 columnas
+
+Total: 126 + 1404 = 1530 features
+
+Más: sequence_id, label → 1532 columnas en total

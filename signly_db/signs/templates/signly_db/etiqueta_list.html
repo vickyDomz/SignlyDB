@@ -1,0 +1,35 @@
+{% extends 'signly_db/base.html' %}
+
+{% block content %}
+    <div>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active bg-success" aria-current="page" href="{% url 'etiqueta_list' %}">Lista</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'etiqueta_new' %}">Agregar</a>
+            </li>
+        </ul>  
+        <div>
+            <h3>Etiqueta</h3>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Etiqueta</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for etiqueta in etiquetas %}
+                    <td>{{ etiqueta.id }}</td>
+                    <td>{{ etiqueta.etiqueta }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+{% endblock %}

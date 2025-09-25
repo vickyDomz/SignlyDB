@@ -1,0 +1,37 @@
+{% extends 'signly_db/base.html' %}
+
+{% block content %}
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active bg-success" aria-current="page" href="{% url 'sign_list' %}">Lista</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'sign_new' %}">Agregar</a>
+        </li>
+    </ul>  
+    <div>
+        <h3>Signos</h3>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>csv File</td>
+                <td>Etiqueta</td>
+                <td>Acciones</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sign in signs %}
+                <tr>
+                    <td>{{ sign.id }}</td>
+                    <td>{{ sign.csv_file }}</td>
+                    <td>{{ sign.nombre }}</td>
+                    <td><button><a href="{% url 'sign_edit' pk=signs.id %}">Editar</a></button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
