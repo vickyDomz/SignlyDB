@@ -1,13 +1,20 @@
 # Entorno virtual
 Lib/
+Include/
+pyvenv.cfg
 venv/
 .env/
+
+# Caché de Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.dll
-*.so
-*.h5
+
+# Archivos grandes o de datos
 *.mp4
 *.csv
+*.db
+
+# Otros temporales
+.DS_Store
