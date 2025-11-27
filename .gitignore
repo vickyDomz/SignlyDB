@@ -3,3 +3,5 @@ Lib/
 *.so
 *.dll
 *.pyd
+pruebaEditFileName/
+recolector_de_datos
