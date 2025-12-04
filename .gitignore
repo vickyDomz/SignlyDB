@@ -5,3 +5,5 @@ Lib/
 *.pyd
 pruebaEditFileName/
 recolector_de_datos
+.env
+reshapeCSV.py

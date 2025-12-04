@@ -1,4 +1,6 @@
 import os
+import cloudinary
+from dotenv import load_dotenv
 """
 Django settings for signly_db project.
 
@@ -128,11 +130,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+load_dotenv()
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dpwieq5am',
-    'API_KEY': '554757891147158',
-    'API_SECRET': 'iA9EZsS6QPMBtl8fqLJ-oCx4cgk',
+    'CLOUD_NAME': os.getenv("CLOUD_NAME"),
+    'API_KEY': os.getenv("API_KEY"),
+    'API_SECRET': os.getenv("API_SECRET"),
 }
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key = os.getenv("API_KEY"),
+    api_secret = os.getenv("API_SECRET")
+)
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 '''

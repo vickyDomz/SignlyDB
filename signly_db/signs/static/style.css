@@ -66,3 +66,8 @@ a {
     background-color: #fff;
     color: #000357;
 }
+button, input, optgroup, select, textarea {
+    margin: 0;
+    font: inherit;
+    color: #000000;
+}

@@ -1,0 +1,47 @@
+Aburrido  
+Agua	  
+Ahora	  
+Amigo	   
+Ayer	 
+Cabeza	 
+Calor	 
+Cansado  
+Casa     
+comer	 
+Cuándo	 
+Cómo	 
+Duele	 
+Dónde	 
+El	 
+Ellos	 
+Escuela	 
+Feliz	 
+Frio 
+Gustar  
+Hacer   
+Haragan   
+Hijo   
+Hoy  
+Ir  
+LSPy   
+Mañana   
+Mi  
+Nada  
+Nervioso   
+Ninguno   
+No   
+No conocer   
+No hay   
+No sé 
+Plata 
+Poco 
+Profesor 
+Que eso 
+Que pasa 
+Quien 
+Qué 
+Si 
+Triste
+Tu
+Va a ser
+Yo

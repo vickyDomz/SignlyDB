@@ -18,6 +18,7 @@ class Sign(models.Model):
 
 class SignVideos(models.Model):
     etiqueta = models.ForeignKey(Etiqueta, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=25)
     video = CloudinaryField('video',
                             resource_type = 'video',
                             transformation={

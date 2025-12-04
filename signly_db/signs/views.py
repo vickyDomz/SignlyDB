@@ -4,19 +4,14 @@ from .models import Sign, SignVideos, TrainingModel, Etiqueta
 from django.core.files import File
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+import numpy as np
+from cloudinary.utils import cloudinary_url
 import os
 import tempfile
 import cv2
 import mediapipe as mp
 import csv
-'''
-@login_required
-def panel_privado(request):
-    return render(request, 'privado.html')
-
-def inicio(request):
-    return render(request, 'inicio.html')
-'''
+import requests
 
 def etiqueta_list(request):
     etiquetas = Etiqueta.objects.all()
@@ -147,28 +142,82 @@ def signVideo_ap_reT(request, pk):
     SignVideos.objects.filter(id=pk).update(ap_re=True)
     return redirect('signVideo_list')
 
+# Snippet adapted from external source / AI assistance
 def procesar_videos(request):
     videos_aprobados = SignVideos.objects.filter(estado=True, ap_re=True, processed=False)
 
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(static_image_mode=True, max_num_hands=2)
 
-    data_por_etiqueta = {}  # {etiqueta: list of rows with sequence_id, frame, landmarks}
+    data_por_etiqueta = {}
+    NUM_FRAMES = 30   # fixed number of frames per video
+    TARGET_FPS = 30   # Cloudinary will standardize all videos to this FPS
 
     for video in videos_aprobados:
         etiqueta = video.etiqueta.etiqueta
         if etiqueta not in data_por_etiqueta:
             data_por_etiqueta[etiqueta] = []
 
-        cap = cv2.VideoCapture(video.video.url)
-        frame_num = 0  # frame counter
+        # --- get Cloudinary URL at fixed FPS ---
+        url = video.video.url  # get the full URL string
+# extract public ID (everything after upload/version)
+        public_id = "/".join(url.split("/")[7:])
 
-        while cap.isOpened():
+        # --- get Cloudinary URL at fixed FPS ---
+        cloud_url, _ = cloudinary_url(
+            public_id,  # this should be the public_id
+            resource_type="video",
+            transformation=[{"fps": TARGET_FPS}]
+        )
+
+        # --- download the video temporarily ---
+        response = requests.get(cloud_url, stream=True)
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4", dir="E:/sign_temp")
+        for chunk in response.iter_content(chunk_size=8192):
+            tmp.write(chunk)
+        tmp.close()
+
+        cap = cv2.VideoCapture(tmp.name)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        # --- detect active frames where hands appear ---
+        active_frames = []
+        for idx in range(total_frames):
             ret, frame = cap.read()
             if not ret:
                 break
-            frame_num += 1
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(rgb)
+            if results.multi_hand_landmarks:
+                active_frames.append(idx)
+        cap.release()
 
+        if not active_frames:
+            os.remove(tmp.name)
+            video.processed = True
+            video.save()
+            continue
+
+        start = active_frames[0]
+        end = active_frames[-1]
+        # if active segment is shorter than NUM_FRAMES, just take the whole segment
+        if end - start + 1 < NUM_FRAMES:
+            frame_indices = list(range(start, end + 1))
+        else:
+            # sample NUM_FRAMES evenly from start to end
+            frame_indices = np.linspace(start, end, NUM_FRAMES, dtype=int)
+
+        # --- extract landmarks from selected frames ---
+        cap = cv2.VideoCapture(tmp.name)
+        frame_num = 0
+        for idx in range(total_frames):
+            ret, frame = cap.read()
+            if not ret:
+                break
+            if idx not in frame_indices:
+                continue
+
+            frame_num += 1
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = hands.process(rgb)
 
@@ -187,15 +236,16 @@ def procesar_videos(request):
                     else:
                         right_hand = coords
 
-            # Add sequence_id (video.id) and frame number for TensorFlow
             row = [video.id, frame_num] + left_hand + right_hand
             data_por_etiqueta[etiqueta].append(row)
 
         cap.release()
+        os.remove(tmp.name)
         video.processed = True
+        print(video.id)
         video.save()
-
-    # Save CSVs
+# Snippet adapted from external source / AI assistance
+    # --- save CSV files ---
     for etiqueta, secuencia in data_por_etiqueta.items():
         etiqueta_obj, _ = Etiqueta.objects.get_or_create(etiqueta=etiqueta)
         csv_path = os.path.join(tempfile.gettempdir(), f"{etiqueta}.csv")
@@ -211,12 +261,13 @@ def procesar_videos(request):
                 writer.writerow(row_data)
 
         with open(csv_path, 'rb') as f:
-            sign, created = Sign.objects.get_or_create(nombre=etiqueta_obj)
+            sign, created = Sign.objects.get_or_create(nombre=etiqueta_obj.etiqueta)
+            print("Saving CSV for:", etiqueta)
             sign.csv_file.save(f"{etiqueta}.csv", File(f))
             sign.save()
+            print("Saved CSV for:", etiqueta)
 
     return redirect('signVideo_list')
-
 
 #TRAINING MODEL
 def trainingMod_list(request):

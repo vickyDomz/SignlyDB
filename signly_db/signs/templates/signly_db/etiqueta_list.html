@@ -19,15 +19,17 @@
                 <tr>
                     <td>ID</td>
                     <td>Etiqueta</td>
+                    <td>Acciones</td>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    {% for etiqueta in etiquetas %}
-                    <td>{{ etiqueta.id }}</td>
-                    <td>{{ etiqueta.etiqueta }}</td>
-                    {% endfor %}
-                </tr>
+                {% for etiqueta in etiquetas %}
+                    <tr>
+                        <td>{{ etiqueta.id }}</td>
+                        <td>{{ etiqueta.etiqueta }}</td>
+                        <td><a href="{% url 'etiqueta_edit' pk=etiqueta.id %}">Edit</a></td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
 
